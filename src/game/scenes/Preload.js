@@ -1,35 +1,25 @@
 import { Scene } from 'phaser'
 
-import sky from '@/game/assets/sky.png'
-import star from '@/game/assets/cannabis.png'
-import bomb from '@/game/assets/pill.png'
-import dude from '@/game/assets/dude.png'
-import fairy from '@/game/assets/fairy.svg'
-import platform from '@/game/assets/platform.png';
-import pad from '@/game/assets/dpadButton.svg';
-import marco from '@/game/assets/marco.svg';
-import AddButtons from './AddButtons'
+import background from '@/game/assets/images/background.png'
+import arrow from '@/game/assets/images/arrow.png'
+import chicken from '@/game/assets/images/chicken_spritesheet.png'
+import horse from '@/game/assets/images/horse_spritesheet.png'
+import pig from '@/game/assets/images/pig_spritesheet.png'
+import sheep from '@/game/assets/images/sheep_spritesheet.png'
+
 
 export default class Preload extends Scene {
     constructor() {
         super({ key: 'Preload' });
     }
 
-
     preload() {
-
-        let h = window.innerHeight;
-        let w = window.innerWidth;
-
-        this.load.image('sky', sky);
-        this.load.image('ground', platform);
-        this.load.image('star', star);
-        this.load.image('bomb', bomb);
-        this.load.image('pad', pad);
-        this.load.svg('fairy', fairy, { scale: (h/100)*2});
-        this.load.svg('marco', marco, { scale: (h/100)});
-
-        this.load.spritesheet('dude', dude, { frameWidth: 32, frameHeight: 48 });
+        this.load.image('background', background)
+        this.load.spritesheet('chicken', chicken, { frameWidth: 131, frameHeight: 200 }, 3);
+        this.load.spritesheet('horse', horse, { frameWidth: 212, frameHeight: 200 }, 3);
+        this.load.spritesheet('pig', pig, { frameWidth: 297, frameHeight: 200 }, 3);
+        this.load.spritesheet('sheep', sheep, { frameWidth: 244, frameHeight: 200 }, 3);
+        this.load.image('arrow', arrow);
     }
 
     create () {

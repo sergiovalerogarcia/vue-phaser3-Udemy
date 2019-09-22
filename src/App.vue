@@ -17,13 +17,11 @@
 
 <script>
 import Game from './components/Game.vue';
-import GameTest from './components/GameTest.vue';
 
 export default {
   name: 'App',
   components: {
-    Game,
-    GameTest
+    Game
   },
   data: () => ({
     //

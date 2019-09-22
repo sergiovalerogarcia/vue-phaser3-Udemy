@@ -2,31 +2,18 @@ import Phaser from 'phaser'
 import PlayScene from './scenes/PlayScene'
 import Preload from './scenes/Preload'
 
-var w = window.innerWidth;
-var h = window.innerHeight;
 
 function launch() {
     var config = {
         type: Phaser.AUTO,
-        width: w,
-        height: h,
+        width: 640,
+        height: 360,
         scale: {
-            mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+            mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH
+
         },
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: h },
-                debug: false,
-                setBounds: {
-                    x: 0,
-                    y: 0,
-                    width: w,
-                    height: h
-                }
-            }
-        },
+        roundPixels: false,
         scene: [Preload, PlayScene]
     };
 
@@ -39,6 +26,3 @@ function launch() {
 
 export default launch
 export { launch }
-
-
-0

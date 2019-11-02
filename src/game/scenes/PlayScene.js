@@ -1,4 +1,5 @@
 import { Scene } from 'phaser'
+import { delay } from 'q';
 
 
 export default class PlayScene extends Scene {
@@ -8,45 +9,58 @@ export default class PlayScene extends Scene {
     }
 
 
-
     create() {
 
+        this.customParams = {
+            centerX: this.cameras.main.centerX,
+            centerY: this.cameras.main.centerY,
+            transition: false
+        };
 
-        let centerX = this.cameras.main.centerX;
-        let centerY = this.cameras.main.centerY;
+        this.backgorund = this.add.sprite(this.customParams.centerX, this.customParams.centerY, 'background');
 
-        this.backgorund = this.add.sprite(centerX, centerY, 'background');
-        
-        
+
         var animalData = [
-            {key: 'chicken', text: 'CHICKEN'},
-            {key: 'horse', text: 'HORSE'},
-            {key: 'pig', text: 'PIG'},
-            {key: 'sheep', text: 'SHEEP'}
-          ];
-        
-          this.animals = this.add.group();
-          this.animals.customParams = {actual: 0};
-          var self = this;   
+            {key: 'chicken', text: 'CHICKEN', audio: 'chickenSound'},
+            {key: 'horse', text: 'HORSE', audio: 'horseSound'},
+            {key: 'pig', text: 'PIG', audio: 'pigSound'},
+            {key: 'sheep', text: 'SHEEP', audio: 'sheepSound'}
+        ];      
 
-          animalData.forEach(function(element){
+        this.animals = this.add.group();
+        this.animals.customParams = { actual: 0 };
+        var self = this;
+
+        animalData.forEach(function (element) {
             //create each animal and save it's properties
-            var animal = self.animals.create(centerX,centerY, element.key, false, false);
+            var animal = self.animals.create(self.customParams.centerX, self.customParams.centerY, element.key, 0, false);
+            animal.customParams = { text: element.text, key: element.key, sound: self.sound.add(element.audio) };
             animal.setInteractive(self.input.makePixelPerfect())
-                .on('pointerdown',self.animateAnimal);
-          });
-
-        //this.animalIterator = this.animals.next();
+                .on('pointerdown', self.animateAnimal);
+            animal.animation = self.anims.create({
+                 key: element.key,
+                 frames: self.anims.generateFrameNumbers(element.key,{ 
+                    start: 0, 
+                    end: 3,
+                    first: 0,
+                    frames: [0, 1, 2, 1, 0, 1, 0], 
+                }),
+                duration: 1000,
+                repeat: 0
+            });
+        });
         this.currentAnimal = this.animals.getFirst(true).setVisible(true);
 
-        this.rightArrow = this.add.sprite(centerX + (centerX * 0.8), centerY, 'arrow');
+        this.showText(this);
+
+        this.rightArrow = this.add.sprite(this.customParams.centerX + (this.customParams.centerX * 0.8), this.customParams.centerY, 'arrow');
         this.rightArrow.customParams = { direction: 1 };
 
         this.rightArrow.setInteractive(this.input.makePixelPerfect()).on('pointerdown',
-        this.switchAnimal);
+            this.switchAnimal);
 
 
-        this.leftArrow = this.add.sprite(centerX - (centerX * 0.8), centerY, 'arrow');
+        this.leftArrow = this.add.sprite(this.customParams.centerX - (this.customParams.centerX * 0.8), this.customParams.centerY, 'arrow');
         this.leftArrow.customParams = { direction: -1, active: false };
         this.leftArrow.flipX = -1;
 
@@ -56,12 +70,14 @@ export default class PlayScene extends Scene {
 
 
     update() {
-
-        if (this.leftArrow.customParams.active) {
+        this.add.text
+        if (this.leftArrow.customParams.active && !this.customParams.transition) {
+            this.customParams.transition = true;
             this.getPrevious(this)
         }
 
-        if (this.rightArrow.customParams.active) {
+        if (this.rightArrow.customParams.active && !this.customParams.transition) {
+            this.customParams.transition = true;
             this.getNext(this)
         }
 
@@ -70,33 +86,77 @@ export default class PlayScene extends Scene {
         this.customParams.active = true;
     }
 
-    getNext(context){
-        context.currentAnimal.setVisible(false);
-        if(context.animals.customParams.actual < context.animals.getChildren().length -1){
-            context.animals.customParams.actual += 1; 
-        } else {
-            context.animals.customParams.actual = 0; 
-        }
-        context.currentAnimal = this.animals.getChildren()[context.animals.customParams.actual];
-        context.currentAnimal.setVisible(true);
+    getNext(context) {
         context.rightArrow.customParams.active = false;
+        context.currentAnimal.animalText.visible = false;
+        context.tweens.add({
+            targets: context.currentAnimal,
+            x: context.customParams.centerX + 2 * (context.customParams.centerX),
+            duration: 300,
+            onStart: function () {
+                if (context.animals.customParams.actual < context.animals.getChildren().length - 1) {
+                    context.animals.customParams.actual += 1;
+                } else {
+                    context.animals.customParams.actual = 0;
+                }
+                context.currentAnimal = context.animals.getChildren()[context.animals.customParams.actual];
+                context.currentAnimal.setX(context.customParams.centerX - 2 * (context.customParams.centerX));
+                context.currentAnimal.setVisible(true);
+                context.showText(context);
+                context.tweens.add({
+                    targets: context.currentAnimal,
+                    x: context.customParams.centerX,
+                    duration: 300,
+                    onComplete: function () { context.customParams.transition = false }
+                });
+            }
+        });
     }
 
-    getPrevious(context){
-        context.currentAnimal.setVisible(false);
-        if(context.animals.customParams.actual > 0){
-            context.animals.customParams.actual -= 1; 
-        } else {
-            context.animals.customParams.actual = this.animals.getChildren().length - 1; 
-        }
-        context.currentAnimal = this.animals.getChildren()[context.animals.customParams.actual];
-        context.currentAnimal.setVisible(true);
+    getPrevious(context) {
         context.leftArrow.customParams.active = false;
-
+        context.currentAnimal.animalText.visible = false;
+        context.tweens.add({
+            targets: context.currentAnimal,
+            x: context.customParams.centerX - 2 * (context.customParams.centerX),
+            duration: 300,
+            onStart: function () {
+                if (context.animals.customParams.actual > 0) {
+                    context.animals.customParams.actual -= 1;
+                } else {
+                    context.animals.customParams.actual = context.animals.getChildren().length - 1;
+                }
+                context.currentAnimal = context.animals.getChildren()[context.animals.customParams.actual];
+                context.currentAnimal.setX(context.customParams.centerX + 2 * (context.customParams.centerX));
+                context.currentAnimal.setVisible(true);
+                context.showText(context);
+                context.tweens.add({
+                    targets: context.currentAnimal,
+                    x: context.customParams.centerX,
+                    duration: 300,
+                    onComplete: function () { context.customParams.transition = false }
+                });
+            }
+        });
     }
 
-    animateAnimal () {
-        console.log('animate animal');
-      }
+    showText(context) {
+        if (!context.currentAnimal.customanimalText) {
+            var style = { font: "bold 22px Arial", fill: "#c9371b", align: "center" };
+            context.currentAnimal.animalText = context.add.text(context.customParams.centerX, context.customParams.centerY*1.7, "phaser 2.4 text bounds", style);
+            context.currentAnimal.animalText.setShadow(1, 1, 'rgba(0,0,0,0.5)', 1);
+            context.currentAnimal.animalText.setOrigin(0.5);
+            //  We'll set the bounds to be from x0, y100 and be 800px wide by 100px high
+            //context.currentAnimal.animalText.setTextBounds(0, 100, 800, 100);
+        }
+
+        context.currentAnimal.animalText.setText(context.currentAnimal.customParams.text);
+        context.currentAnimal.animalText.visible = true;
+    }
+
+    animateAnimal() {
+        this.anims.play(this.customParams.key);
+        this.customParams.sound.play();
+    }
 
 }

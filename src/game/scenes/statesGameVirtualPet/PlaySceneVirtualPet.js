@@ -132,7 +132,6 @@ export default class PlayScene extends Scene {
                     self.pet.anims.play('eat');
                     self.updateState(newItem, self);
                     newItem.destroy();
-                    self.clearSelection();
                 },
             }
             );        
@@ -161,6 +160,6 @@ export default class PlayScene extends Scene {
     }
 
     gameOver() {
-        this.scene.restart();
+        this.scene.start('Home', {text: "GAME OVER"})
     }
 }

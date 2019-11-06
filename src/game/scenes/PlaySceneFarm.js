@@ -146,8 +146,6 @@ export default class PlayScene extends Scene {
             context.currentAnimal.animalText = context.add.text(context.customParams.centerX, context.customParams.centerY*1.7, "phaser 2.4 text bounds", style);
             context.currentAnimal.animalText.setShadow(1, 1, 'rgba(0,0,0,0.5)', 1);
             context.currentAnimal.animalText.setOrigin(0.5);
-            //  We'll set the bounds to be from x0, y100 and be 800px wide by 100px high
-            //context.currentAnimal.animalText.setTextBounds(0, 100, 800, 100);
         }
 
         context.currentAnimal.animalText.setText(context.currentAnimal.customParams.text);

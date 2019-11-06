@@ -1,18 +1,19 @@
 <template>
-        <div id="game-container-virtualPet"></div>
+<div id="game-container">
+  </div>
 </template>
 
 
 <script>
 export default {
-  name: "GameVirtualPet",
+  name: "Games",
   data() {
     return {
       downloaded: false
     };
   },
   async mounted() {
-    const game = await import("@/game/GameVirtualPet");
+    const game = await import("@/game/Game");
     this.downloaded = true;
     this.$nextTick(() => game.launch());
   }
@@ -21,8 +22,7 @@ export default {
 
 
 <style lang="scss" scoped>
-
-.game-container-virtualPet {
+.game-container{
   font-size: 2rem;
   font-family: "Courier New", Courier, monospace;
   margin: 0;
